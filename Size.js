@@ -18,6 +18,12 @@ class Size {
     getBuffer() {
         return Buffer.from({ length: this.size + (this._bitSize ? 1 : 0) })
     }
+
+    validate(replay)  {
+        if (replay.offset !== this.size + (this._bitSize ? 1 : 0)) {
+            throw Error(`Invalid buffer size. Expected to wrize ${this.size} bytes, instead wrote ${replay.offset}`);
+        }
+    }
 }
 
 module.exports = Size;

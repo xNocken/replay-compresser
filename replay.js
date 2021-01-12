@@ -60,6 +60,14 @@ class Replay {
         return this.buffer.writeInt32LE(value, offset || this.offset - 4);
     }
 
+    writeUInt32(value, offset) {
+        if (!offset) {
+            this.offset += 4;
+        }
+
+        return this.buffer.writeUInt32LE(value, offset || this.offset - 4);
+    }
+
     writeInt16(value, offset) {
         if (!offset) {
             this.offset += 2;
@@ -68,12 +76,24 @@ class Replay {
         return this.buffer.writeInt16LE(value, offset || this.offset - 2);
     }
 
+    writeUInt16(value, offset) {
+        if (!offset) {
+            this.offset += 2;
+        }
+
+        return this.buffer.writeUInt16LE(value, offset || this.offset - 2);
+    }
+
     writeByte(value, offset) {
         if (!offset) {
             this.offset += 1;
         }
 
         return this.buffer[offset || (this.offset - 1)] = value & 255;
+    }
+
+    writeGuid(guid) {
+        this.writeBytes(Buffer.from(guid, 'hex'));
     }
 
     writeString(string, offset) {
@@ -123,6 +143,15 @@ class Replay {
 
         array.forEach((entry) => {
             fn(this, entry);
+        });
+    };
+
+    writeObject(array, fn1, fn2) {
+        this.writeInt32(Object.values(array).length);
+
+        Object.entries(array).forEach(([key, value]) => {
+            fn1(this, key);
+            fn2(this, value);
         });
     };
 

@@ -4,13 +4,14 @@ const fs = require('fs');
 const buildMeta = require('./buildMeta');
 const wasm = require('ooz-wasm');
 const HJSON = require('hjson');
+const buildHeader = require('./buildHeader');
 const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
 
 (async () => {
     const parts = [];
     let size = new Size();
 
-    const replay = new Replay(fs.readFileSync('1.replay'));
+    const replay = new Replay(fs.readFileSync('replay.replay'));
 
     replay.skip(4);
 
@@ -76,12 +77,19 @@ const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
                     size.size -= 8;
                     break;
                 }
-                size.size += chunkSize;
+
+                let data = replay.readBytes(chunkSize);
+
+                if (chunkType === 0 && settings.useCustomHeader) {
+                    data = buildHeader();
+                }
+
+                size.size += data.length;
 
                 parts.push({
                     type: 'chunk',
                     chunkType,
-                    data: replay.readBytes(chunkSize),
+                    data: data,
                     size: size.size - startSize,
                 });
 
@@ -232,13 +240,14 @@ const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
                 }
 
                 if (part.size !== (newBuffer.offset - startOffset)) {
-                    console.log('Invalid size in type', part.chunkType, 'Expected:', part.size, 'Got:', newBuffer.offset - startOffset)
+                    throw Error(`Invalid size in type ${part.chunkType}, Expected: ${part.size} Got: ${newBuffer.offset - startOffset}`)
                 }
 
                 newBuffer.writeInt32(newBuffer.offset - startOffset, chunkTypeOffset);
         }
     });
 
+    size.validate(newBuffer);
 
     console.log(newBuffer.offset, size)
 

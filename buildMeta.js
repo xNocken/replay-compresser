@@ -2,25 +2,26 @@ const HJSON = require('hjson');
 const fs = require('fs');
 const header = HJSON.parse(fs.readFileSync('settings.hjson').toString()).meta;
 const Replay = require('./replay');
+const Size = require('./Size');
 
 const buildMeta = () => {
-    let size = 0;
+    let size = new Size();
 
-    size += 4;
-    size += 4;
-    size += 4;
-    size += 4;
-    size += 4;
+    size.size += 4;
+    size.size += 4;
+    size.size += 4;
+    size.size += 4;
+    size.size += 4;
 
-    size += header.name.length + 5;
+    size.size += header.name.length + 5;
 
-    size += 4;
-    size += 8;
-    size += 4;
-    size += 4;
-    size += header.encryptionKey.length + 4;
+    size.size += 4;
+    size.size += 8;
+    size.size += 4;
+    size.size += 4;
+    size.size += header.encryptionKey.length + 4;
 
-    const buffer = new Replay(Buffer.from({ length: size }));
+    const buffer = new Replay(size.getBuffer());
 
     buffer.writeInt32(header.magic);
     buffer.writeInt32(header.fileVersion);
@@ -33,6 +34,8 @@ const buildMeta = () => {
     buffer.writeInt32(header.isCompressed);
     buffer.writeInt32(header.isEncrypted);
     buffer.writeArray(header.encryptionKey, (a, value) => a.writeByte(value));
+
+    size.validate(buffer);
 
     return buffer.buffer;
 }
