@@ -1,13 +1,16 @@
+const Size = require('./Size');
+const Replay = require('./replay');
+const fs = require('fs');
+const buildMeta = require('./buildMeta');
+const wasm = require('ooz-wasm');
+const HJSON = require('hjson');
+const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
+
 (async () => {
-    const Replay = require('./replay');
-    const fs = require('fs');
-    const buildHeader = require('./buildHeader');
-    const wasm = require('ooz-wasm');
-
     const parts = [];
-    let size = 0;
+    let size = new Size();
 
-    const replay = new Replay(fs.readFileSync('nice.replay'));
+    const replay = new Replay(fs.readFileSync('1.replay'));
 
     replay.skip(4);
 
@@ -49,56 +52,66 @@
         replay.header.encryptionKey = replay.readBytes(length);
     }
 
-    const header = buildHeader();
+    const header = buildMeta();
 
     parts.push({
         type: "meta",
         data: header,
     });
 
-    size += header.length;
+    size.size += header.length;
     let i = 0;
     while (!replay.atEnd()) {
         const chunkType = replay.readInt32();
         const chunkSize = replay.readInt32();
         const end = replay.offset + chunkSize;
 
-        size += 8;
-        const startSize = size;
+        size.size += 8;
+        const startSize = size.size;
 
         switch (chunkType) {
             case 0:
-                size += chunkSize;
+            case 2:
+                if ((chunkType === 2 && !settings.chunkTypes.checkpoints) || (chunkType === 0 && !settings.chunkTypes.header)) {
+                    size.size -= 8;
+                    break;
+                }
+                size.size += chunkSize;
 
                 parts.push({
                     type: 'chunk',
                     chunkType,
                     data: replay.readBytes(chunkSize),
-                    size: size - startSize,
+                    size: size.size - startSize,
                 });
 
                 break;
             case 1:
+                if (!settings.chunkTypes.replayPackets) {
+                    size.size -= 8;
+                    break;
+                }
                 let start;
                 let end;
                 i++;
-                if (i > 5) {
-                    size-= 8;
+                
+                if (i > settings.replayPacketstoCheck) {
+                    size.size-= 8;
                     break;
                 }
                 if (replay.header.fileVersion >= 4) {
                     start = replay.readInt32();
                     end = replay.readInt32();
-                    size += 8;
+                    size.size += 8;
                 }
 
                 const chunklength = replay.readInt32();
-                size += 4;
+                size.size += 4;
 
                 let memSize;
                 if (replay.header.fileVersion >= 6) {
                     memSize = replay.readInt32();
-                    size += 4;
+                    size.size += 4;
                 }
 
                 if (chunklength === 1389582) {
@@ -119,7 +132,7 @@
                     decompressed = decryptedAr.buffer;
                 }
 
-                size += decompressed.length;
+                size.size += decompressed.length;
 
                 parts.push({
                     type: 'chunk',
@@ -130,28 +143,33 @@
                         memSize,
                     },
                     data: decompressed.slice(),
-                    size: size - startSize,
+                    size: size.size - startSize,
                 })
 
                 break;
+            case 3:
+                if (!settings.chunkTypes.events) {
+                    size.size -= 8;
+                    break;
+                }
 
                 const eventId = replay.readFString();
-                size += 4 + 1;
-                size += eventId.length;
+                size.size += 4 + 1;
+                size.size += eventId.length;
                 const group = replay.readFString();
-                size += 4 + 1;
-                size += group.length;
+                size.size += 4 + 1;
+                size.size += group.length;
                 const metadata = replay.readFString();
-                size += 4 + 1;
-                size += metadata.length;
+                size.size += 4 + 1;
+                size.size += metadata.length;
                 const startTime = replay.readInt32();
                 const endTime = replay.readInt32();
                 const length = replay.readInt32();
-                size += 12;
+                size.size += 12;
 
 
                 const decrypted = replay.decryptBuffer(length);
-                size += decrypted.byteLength;
+                size.size += decrypted.byteLength;
 
                 parts.push({
                     type: 'chunk',
@@ -164,19 +182,18 @@
                         endTime,
                     },
                     data: decrypted,
-                    size: size - startSize,
+                    size: size.size - startSize,
                 })
                 break;
             default:
-                size -= 8;
+                size.size -= 8;
                 console.log('unhandled chunktype', chunkType)
         }
 
         replay.goTo(end);
-        i++;
     }
 
-    let newBuffer = new Replay(Buffer.from(Array.from({ length: size }).map(() => 12)));
+    let newBuffer = new Replay(size.getBuffer());
 
     parts.forEach((part, index) => {
         switch (part.type) {

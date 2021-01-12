@@ -1,7 +1,9 @@
-const header = require('./header.json');
+const HJSON = require('hjson');
+const fs = require('fs');
+const header = HJSON.parse(fs.readFileSync('settings.hjson').toString()).meta;
 const Replay = require('./replay');
 
-const buildHeader = () => {
+const buildMeta = () => {
     let size = 0;
 
     size += 4;
@@ -35,4 +37,4 @@ const buildHeader = () => {
     return buffer.buffer;
 }
 
-module.exports = buildHeader;
+module.exports = buildMeta;

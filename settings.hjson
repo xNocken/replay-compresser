@@ -1,0 +1,33 @@
+{
+    meta: {
+        magic: 480436863
+        fileVersion: 6
+        lengthInMs: 10000
+        networkVersion: 2
+        changelist: 1000000000
+        name: ""
+        isLive: 0
+        timestamp: 11128120930901950464
+        isCompressed: 0
+        isEncrypted: 0
+       encryptionKey: []
+    }
+    header: {}
+    useCustomHeader: false
+    useCustomMeta: true
+    chunkTypes: {
+        header: true
+        replayPackets: true
+        checkpoints: false
+        events: fals
+    }
+    replayPacketstoCheck: 1
+    packetTypesIsBlacklist: false
+    packetTypes: [
+        \/Game\/Athena\/PlayerPawn_Athena.PlayerPawn_Athena_C
+        \/Game\/Athena\/Athena_GameState.Athena_GameState_C
+        \/Script\/FortniteGame.FortTeamPrivateInfo
+        \/Script\/FortniteGame.FortPlayerStateAthena
+        \/Game\/Athena\/Aircraft\/AthenaAircraft.AthenaAircraft_C
+    ]
+}
