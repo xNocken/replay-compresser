@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "discord-module": "^2.0.16",
     "ooz-wasm": "^1.0.0"
   }
 }
