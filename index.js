@@ -7,11 +7,11 @@ const HJSON = require('hjson');
 const buildHeader = require('./buildHeader');
 const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
 
-(async () => {
+module.exports = async (path) => {
     const parts = [];
     let size = new Size();
 
-    const replay = new Replay(fs.readFileSync('replay.replay'));
+    const replay = new Replay(fs.readFileSync(path));
 
     replay.skip(4);
 
@@ -251,7 +251,9 @@ const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
 
     console.log(newBuffer.offset, size)
 
-    fs.writeFileSync('C:\\Users\\marcm\\AppData\\Local\\FortniteGame\\Saved\\tournaments\\yeah.replay', newBuffer.buffer);
-    fs.writeFileSync('C:\\Users\\marcm\\AppData\\Local\\FortniteGame\\Saved\\Demos\\yeah.replay', newBuffer.buffer);
-    fs.writeFileSync('result.replay', newBuffer.buffer);
-})()
+    // fs.writeFileSync('C:\\Users\\marcm\\AppData\\Local\\FortniteGame\\Saved\\tournaments\\yeah.replay', newBuffer.buffer);
+    // fs.writeFileSync('C:\\Users\\marcm\\AppData\\Local\\FortniteGame\\Saved\\Demos\\yeah.replay', newBuffer.buffer);
+    // fs.writeFileSync('result.replay', newBuffer.buffer);
+
+    return newBuffer.buffer;
+};

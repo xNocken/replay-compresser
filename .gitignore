@@ -1,3 +1,4 @@
 *.replay
 node_modules
 test.js
+*.zip

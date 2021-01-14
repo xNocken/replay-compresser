@@ -7,10 +7,10 @@
         changelist: 1000000000 // Build version. Increase it if the replay is marked as outdated
         name: "" // This doesnt do anything
         isLive: 0 // Marks your replay as corrupted
-        timestamp: 11128120930901950464
+        timestamp: 11128120930901950464 // When the replay was created
         isCompressed: 0 // needs to be 0 or it doesnt work
         isEncrypted: 0 // same
-        encryptionKey: [], // keep this empty. Just space waste
+        encryptionKey: [], // keep this empty. Just a waste of space
     }
     header: {
         networkVersion: 14,
@@ -26,7 +26,7 @@
         levelNamesAndTimes: {
             /Game/Athena/Apollo/Maps/Apollo_Terrain: 0, // this needs to match your mode. Or it will infinite load
         },
-        flags: 10,
+        flags: 11,
         gameSpicificData: [
             'SubGame=Outpost'
         ],
@@ -39,7 +39,7 @@
         checkpoints: false
         events: false
     }
-    replayPacketstoCheck: 1000
+    replayPacketstoCheck: 1
     packetTypesIsBlacklist: false
     packetTypes: [
         '/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C'
