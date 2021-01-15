@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "hjson": "^3.2.2",
     "ooz-wasm": "^1.0.0"
   }
 }
