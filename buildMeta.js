@@ -1,6 +1,5 @@
-const HJSON = require('hjson');
-const fs = require('fs');
-const header = HJSON.parse(fs.readFileSync('settings.hjson').toString()).meta;
+const settings = require('./settings');
+const header = settings.meta;
 const Replay = require('./replay');
 const Size = require('./Size');
 

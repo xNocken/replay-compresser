@@ -5,6 +5,7 @@ const buildMeta = require('./buildMeta');
 const wasm = require('ooz-wasm');
 const HJSON = require('hjson');
 const buildHeader = require('./buildHeader');
+const parseReplayData = require('./parseReplayData');
 const settings = HJSON.parse(fs.readFileSync('settings.hjson').toString());
 
 module.exports = async (path) => {
@@ -122,10 +123,6 @@ module.exports = async (path) => {
                     size.size += 4;
                 }
 
-                if (chunklength === 1389582) {
-                    console.log(i);
-                }
-
                 const decryptedAr = new Replay(replay.decryptBuffer(chunklength));
 
                 let decompressed;
@@ -139,6 +136,8 @@ module.exports = async (path) => {
                 } else {
                     decompressed = decryptedAr.buffer;
                 }
+
+                parts.push(parseReplayData(decompressed));
 
                 size.size += decompressed.length;
 
