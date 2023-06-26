@@ -24,22 +24,22 @@
         changelist: 14937640,
         branch: '++Fortnite+Release-15.10',
         levelNamesAndTimes: {
-            /Game/Athena/Apollo/Maps/Apollo_Terrain: 0, // this needs to match your mode. Or it will infinite load
+            /Game/Athena/Asteri/Maps/Asteria_Terrain: 0, // this needs to match your mode. Or it will infinite load
         },
         flags: 11,
         gameSpicificData: [
             'SubGame=Outpost'
         ],
     }
-    useCustomHeader: true
-    useCustomMeta: true
+    useCustomHeader: false
+    useCustomMeta: false
     chunkTypes: {
         header: true
         replayPackets: true
         checkpoints: false
-        events: false
+        events: true
     }
-    replayPacketstoCheck: 1
+    replayPacketstoCheck: 1000000
     packetTypesIsBlacklist: false
     packetTypes: [
         '/Game/Athena/PlayerPawn_Athena.PlayerPawn_Athena_C'

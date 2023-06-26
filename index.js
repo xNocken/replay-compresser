@@ -17,6 +17,10 @@ module.exports = async (path) => {
 
     replay.header.fileVersion = replay.readInt32();
 
+    const versionCount = replay.readInt32();
+
+    replay.skip(versionCount * 20);
+
     replay.skip(4);
 
     replay.header.networkVersion = replay.readInt32();
@@ -48,19 +52,21 @@ module.exports = async (path) => {
         replay.header.isEncrypted = isEncrypted;
 
         const length = replay.readInt32();
-
-
         replay.header.encryptionKey = replay.readBytes(length);
     }
 
-    const header = buildMeta();
+    const pos = replay.offset;
+    replay.offset = 0;
+
+    const meta = replay.readBytes(pos);
 
     parts.push({
         type: "meta",
-        data: header,
+        data: meta,
     });
 
-    size.size += header.length;
+    size.size += meta.length;
+
     let i = 0;
     while (!replay.atEnd()) {
         const chunkType = replay.readInt32();
@@ -253,7 +259,7 @@ module.exports = async (path) => {
 
     // fs.writeFileSync('C:\\Users\\marcm\\AppData\\Local\\FortniteGame\\Saved\\tournaments\\yeah.replay', newBuffer.buffer);
     // fs.writeFileSync('C:\\Users\\marcm\\AppData\\Local\\FortniteGame\\Saved\\Demos\\yeah.replay', newBuffer.buffer);
-    // fs.writeFileSync('result.replay', newBuffer.buffer);
+    fs.writeFileSync('result.replay', newBuffer.buffer);
 
     return newBuffer.buffer;
 };
